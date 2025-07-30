@@ -52,9 +52,30 @@ while True:
         print("再見！很高興為你服務。")  # Farewell message
         break
 
+    # Step: Rewrite the user query for retrieval purposes
+    rewriting_prompt = [
+        {
+            "role": "system",
+            "content": "你是一個負責幫忙重寫使用者查詢的助手，目的是幫助搜尋系統更容易理解問題。請將輸入的問題改寫為清晰、無錯字、適合檢索的格式，但不要改變原本語意。"
+        },
+        {
+            "role": "user",
+            "content": user_query
+        }
+    ]
+
+    # Use GPT-4o to rewrite the query
+    rewritten_response = client.chat.completions.create(
+        model=model,
+        messages=rewriting_prompt
+    )
+    cleaned_query = rewritten_response.choices[0].message.content.strip()
+
+    print(f"\n📘 改寫後的查詢：{cleaned_query}\n")
+
     # Query the Chroma collection to find the top 3 most relevant chunks
     results = collection.query(
-        query_texts=[user_query],  # The user's query
+        query_texts=[cleaned_query],  # The user's query
         n_results=5,  # Number of matching chunks to return
         include=["documents", "metadatas"]  # Include the actual texts and metadata
     )
@@ -67,7 +88,7 @@ while True:
     # Load reranker tokenizer and model
     reranker_tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-reranker-base")
     reranker_model = AutoModelForSequenceClassification.from_pretrained("BAAI/bge-reranker-base")
-    reranker_model.eval() # Set model to evaluation mode
+    reranker_model.eval()  # Set model to evaluation mode
 
     highest_score = float("-inf")
     best_chunk = ""
@@ -101,12 +122,12 @@ while True:
     system_prompt = f"""
     你的名字是 Adam。你是一位樂於助人的助手，負責回答有關台灣速食歷史和文化發展的問題。
     但你只能根據使用者提供的資訊來回答問題，不能使用你自己的內部知識，也不能憑空捏造內容。
-    
+
     如果你不知道答案，就回答：「我不知道。」
     如果使用者說「Goodbye Adam」，你要以親切的告別訊息回覆對方。
-    
+
     ------------------------
-    
+
     以下是可用資料：
     {best_chunk}
     """
