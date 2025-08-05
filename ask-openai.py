@@ -22,7 +22,7 @@ chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
 # Define a custom embedding function using multilingual E5 model, which handles Traditional Chinese
 class MyEmbeddingFunction(EmbeddingFunction):
     def __init__(self):
-        self.model = SentenceTransformer("intfloat/multilingual-e5-large")  # Load model
+        self.model = SentenceTransformer("BAAI/bge-m3")  # Load model
 
     def __call__(self, input: Documents) -> Embeddings:
         # Prepend 'passage:' to each input string as expected by the E5 model

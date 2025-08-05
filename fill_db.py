@@ -14,7 +14,7 @@ chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
 
 class MyEmbeddingFunction(EmbeddingFunction):
     def __init__(self):
-        self.model = SentenceTransformer("intfloat/multilingual-e5-large")
+        self.model = SentenceTransformer("BAAI/bge-m3")
 
     def __call__(self, input: Documents) -> Embeddings:
         return self.model.encode([f"passage: {text}" for text in input], show_progress_bar=False).tolist()
@@ -38,14 +38,14 @@ for doc in raw_documents:
 print(f"Loaded {len(raw_documents)} documents")
 
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=600,
-    chunk_overlap=250,
+    chunk_size=1000,
+    chunk_overlap=200,
     separators=["\n\n", "\n", ".", "。", "！", "？", " ", ""]
 )
 
 chunks = text_splitter.split_documents(raw_documents)
 # Load the tokenizer corresponding to your embedding model
-tokenizer = AutoTokenizer.from_pretrained("intfloat/multilingual-e5-large")
+tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-m3")
 
 documents = []
 metadata = []
@@ -72,19 +72,3 @@ data = collection.query(
     query_texts=["my query"],
     include=["documents", "metadatas", "embeddings"],
 )
-
-if data["embeddings"]:
-    first_embedding = data["embeddings"][0][0]  # first list of embeddings, first embedding vector
-    print("Embedding dimension:", len(first_embedding))
-else:
-    print("No embeddings returned.")
-
-print("Sample token counts per chunk:", token_counts)
-print("Average token count per chunk:", sum(token_counts) / len(token_counts))
-print("Max token count:", max(token_counts))
-
-print("\nAll Chunks:\n")
-for idx, doc in enumerate(documents):
-    print(f"Chunk {idx+1}:\n{doc}\n{'-'*40}")
-
-print("Inserted chunks into ChromaDB:", len(documents))
