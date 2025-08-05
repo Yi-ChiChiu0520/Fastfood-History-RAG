@@ -29,6 +29,7 @@ class MyEmbeddingFunction(EmbeddingFunction):
         return self.model.encode([f"passage: {text}" for text in input], show_progress_bar=False).tolist()
 
 
+
 # Instantiate the embedding function
 embedding_function = MyEmbeddingFunction()
 
