@@ -35,7 +35,7 @@ embedding_function = MyEmbeddingFunction()
 
 # Either retrieve an existing Chroma collection or create a new one
 collection = chroma_client.get_collection(
-    name="my-collection",  # Name of the vector collection
+    name="my-collection-original",  # Name of the vector collection
     embedding_function=embedding_function  # Embedding function used for similarity search
 )
 
@@ -46,7 +46,7 @@ model = "gpt-4o"  # Use GPT-4o model for answering questions
 # Start an infinite loop for user interaction (Q&A style)
 while True:
     # Get the user's question from input
-    user_query = input("請輸入你關於麥當勞歷史的問題（輸入 'Goodbye Adam' 結束）：\n")
+    user_query = input("請輸入你關於資料庫文件的問題（輸入 'Goodbye Adam' 結束）：\n")
 
     # Check if the user wants to end the session
     if user_query.strip().lower() == "goodbye adam":
@@ -121,8 +121,8 @@ while True:
 
     # Create a system prompt to guide GPT on how to behave
     system_prompt = f"""
-    你的名字是 Adam。你是一位樂於助人的助手，負責回答有關台灣速食歷史和文化發展的問題。
-    但你只能根據使用者提供的資訊來回答問題，不能使用你自己的內部知識，也不能憑空捏造內容。
+    你是 Adam，只能根據提供的資料回答，不能憑空捏造。
+    若無答案請回覆「我不知道」。
 
     如果你不知道答案，就回答：「我不知道。」
     如果使用者說「Goodbye Adam」，你要以親切的告別訊息回覆對方。
